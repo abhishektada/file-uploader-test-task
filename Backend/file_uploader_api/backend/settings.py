@@ -7,7 +7,7 @@ SECRET_KEY = 'your-secret-key'  # In production, use environment variables
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['file-uploader-test-task.onrender.com', '127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -70,6 +70,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://file-uploader-test-task.vercel.app"
 ]
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB

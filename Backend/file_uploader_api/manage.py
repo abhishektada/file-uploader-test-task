@@ -15,6 +15,16 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+
+    # Set default host and port from environment variables
+    default_host = os.getenv('DJANGO_HOST', 'localhost')
+    default_port = os.getenv('DJANGO_PORT', '5000')
+
+    # Update the arguments if the `runserver` command is used
+    if len(sys.argv) > 1 and sys.argv[1] == 'runserver':
+        if len(sys.argv) == 2:  # If no host or port is specified in the command
+            sys.argv.append(f'{default_host}:{default_port}')
+
     execute_from_command_line(sys.argv)
 
 

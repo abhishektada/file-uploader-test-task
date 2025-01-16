@@ -3,11 +3,16 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'your-secret-key'  # In production, use environment variables
+SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key')
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['file-uploader-test-task.onrender.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [
+    'file-uploader-test-task.onrender.com',
+    '127.0.0.1',
+    'localhost',
+    '.onrender.com'  # Allow all subdomains on render.com
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -23,6 +28,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add this line
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -85,3 +91,5 @@ REST_FRAMEWORK = {
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True  # Only for development
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

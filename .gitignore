@@ -4,3 +4,4 @@ node_modules
 .DS_Store
 __pycache__
 Backend/Backend/media/uploads/**
+Backend/Backend/staticfiles/**

@@ -9,6 +9,7 @@ from .serializers import FileSerializer
 from rest_framework import serializers
 import mimetypes
 from rest_framework.pagination import PageNumberPagination
+import os
 
 class FileViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
@@ -33,6 +34,30 @@ class FileViewSet(viewsets.ModelViewSet):
             original_filename=file_obj.name,
             content_type=content_type
         )
+
+    @action(detail=True, methods=['get'])
+    def download(self, request, pk=None):
+        file = self.get_object()
+        if not file.file:
+            return Response(
+                {'error': 'File not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        file_path = file.file.path
+        if not os.path.exists(file_path):
+            return Response(
+                {'error': 'File not found on disk'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        response = FileResponse(
+            open(file_path, 'rb'),
+            content_type=file.content_type or 'application/octet-stream',
+            as_attachment=True,
+            filename=file.original_filename
+        )
+        return response
 
     @action(detail=True, methods=['post'])
     def toggle_public(self, request, pk=None):

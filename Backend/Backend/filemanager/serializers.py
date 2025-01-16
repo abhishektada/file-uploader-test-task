@@ -13,7 +13,7 @@ class FileSerializer(serializers.ModelSerializer):
     def get_download_url(self, obj):
         request = self.context.get('request')
         if request and obj.file:
-            return request.build_absolute_uri(obj.file.url)
+            return request.build_absolute_uri(f'/api/files/{obj.id}/download/')
         return None
 
     def get_share_url(self, obj):

@@ -1,0 +1,65 @@
+diff --git a/.gitignore b/.gitignore
+index 2b67560..408027b 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -4,3 +4,4 @@ node_modules
+ .DS_Store
+ __pycache__
+ Backend/Backend/media/uploads/**
++Backend/Backend/staticfiles/**
+diff --git a/Backend/Backend/filemanager/serializers.py b/Backend/Backend/filemanager/serializers.py
+index 0e83970..fd05c3b 100644
+--- a/Backend/Backend/filemanager/serializers.py
++++ b/Backend/Backend/filemanager/serializers.py
+@@ -13,7 +13,7 @@ class FileSerializer(serializers.ModelSerializer):
+     def get_download_url(self, obj):
+         request = self.context.get('request')
+         if request and obj.file:
+-            return request.build_absolute_uri(obj.file.url)
++            return request.build_absolute_uri(f'/api/files/{obj.id}/download/')
+         return None
+ 
+     def get_share_url(self, obj):
+diff --git a/Backend/Backend/filemanager/views.py b/Backend/Backend/filemanager/views.py
+index 5eaf199..530a14e 100644
+--- a/Backend/Backend/filemanager/views.py
++++ b/Backend/Backend/filemanager/views.py
+@@ -9,6 +9,7 @@ from .serializers import FileSerializer
+ from rest_framework import serializers
+ import mimetypes
+ from rest_framework.pagination import PageNumberPagination
++import os
+ 
+ class FileViewSet(viewsets.ModelViewSet):
+     pagination_class = PageNumberPagination
+@@ -34,6 +35,30 @@ class FileViewSet(viewsets.ModelViewSet):
+             content_type=content_type
+         )
+ 
++    @action(detail=True, methods=['get'])
++    def download(self, request, pk=None):
++        file = self.get_object()
++        if not file.file:
++            return Response(
++                {'error': 'File not found'}, 
++                status=status.HTTP_404_NOT_FOUND
++            )
++        
++        file_path = file.file.path
++        if not os.path.exists(file_path):
++            return Response(
++                {'error': 'File not found on disk'}, 
++                status=status.HTTP_404_NOT_FOUND
++            )
++
++        response = FileResponse(
++            open(file_path, 'rb'),
++            content_type=file.content_type or 'application/octet-stream',
++            as_attachment=True,
++            filename=file.original_filename
++        )
++        return response
++
+     @action(detail=True, methods=['post'])
+     def toggle_public(self, request, pk=None):
+         file = self.get_object()
